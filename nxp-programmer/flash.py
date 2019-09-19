@@ -28,7 +28,7 @@ SUCCESS = r"""
 
 
 def get_args():
-    arg_parser = ArgumentParser(description=r"Example usage: python flash.py -d COM6 -i ..\_build\sjtwo-c.bin")
+    arg_parser = ArgumentParser(description=r"Example usage: python flash.py -p COM6 -i ..\_build\sjtwo-c.bin")
     arg_parser.add_argument(
         "-i", "--input",
         metavar="<FILE>",
@@ -36,12 +36,20 @@ def get_args():
         help="File path of firmware (.bin) to flash onto target",
         default=None,
     )
+    # This argument is an optional argument. You may or may not pass
+    # If you are not sure on what COM port your LPC40xx controller is connected to,
+    # do not pass any argument. It shall then consider the default argument
+    # and the script shall automatically detect the controller i.e. LPC40xx
+    # How to use : 
+    # python flash.py -i ../_build_lpc40xx_freertos/lpc40xx_freertos.bin
+    #                               OR
+    # python flash.py -p /dev/ttyUSB0 -i ../_build_lpc40xx_freertos/lpc40xx_freertos.bin
     arg_parser.add_argument(
-        "-d", "--device",
-        metavar="<STRING or FILE>",
+        "-p", "--port",             
+        metavar="<COM PORT>",
         type=str,
-        help="USB to Serial device ID (i.e. COM6 or /dev/ttyUSB0)",
-        default="",
+        help="USB to Serial COM port (i.e. COM6 or /dev/ttyUSB0 or /dev/cu.SLAB_USBtoUART)",
+        default="",         
     )
     arg_parser.add_argument(
         "-v", "--verbose",
@@ -69,17 +77,17 @@ def get_args():
 def main():
     args = get_args()
     input_filepath = os.path.abspath(args.input)
-    device_id = args.device
+    com_port = args.port
     verbose = args.verbose
 
-    print("Flashing file [{}] using device ID [{}]".format(input_filepath, device_id))
+    print("Flashing file [{}] using COM port [{}]".format(input_filepath, com_port))
     sys.stdout.flush()
 
     cmd = [
         "python",
         NXPPROG_PY,
         "--binary={}".format(input_filepath),
-        "--device={}".format(device_id),
+        "--device={}".format(com_port),
     ]
     if verbose:
         print("Using command:\n{}".format(" ".join(cmd)))
