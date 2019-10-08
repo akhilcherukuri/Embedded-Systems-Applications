@@ -152,3 +152,8 @@ format_filenodes = fsops.filter_files(
 if not no_format:
     for filenode in format_filenodes:
         env_arm.ClangFormat(filenode=filenode, verbose=verbose)
+
+symbol_table = PROJECT_DIR.File("../symbol_table.c")
+symbol_table_dest_filepath = fsops.ch_target_filenode(symbol_table, OBJ_DIR, "o")
+symbol_table_objects = env_arm.Object(target=symbol_table_dest_filepath, source=symbol_table)
+relinked_elf_filenodes = env_arm.Program(target=VARIANT_DIR.File("relinked_{}.elf".format(PROJECT_DIR.name)), source=symbol_table_objects + elf_filenodes)
