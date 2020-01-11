@@ -1,7 +1,6 @@
 import sys
 
 import fsops
-import osops
 from sources import Sources
 
 """
@@ -9,6 +8,7 @@ CLI
 """
 verbose = GetOption("verbose")
 no_format = GetOption("no_format")
+no_unittest = GetOption("no_unittest")
 
 
 """
@@ -25,6 +25,7 @@ PROJECT_DIR = project_dirnode
 
 """ Build artifact nodes """
 VARIANT_DIR = REPO_ROOT_DIR.Dir("_build_{}".format(PROJECT_DIR.name))
+TEST_DIR = VARIANT_DIR.Dir("test")
 OBJ_DIR = VARIANT_DIR.Dir("obj")
 MAP_FILE = VARIANT_DIR.File("{}.map".format(PROJECT_DIR.name))
 SIZE_FILE = VARIANT_DIR.File("{}.size".format(PROJECT_DIR.name))
@@ -53,26 +54,13 @@ EXCLUDED_SRC_FILES = [
 """
 Import build environment
 """
-SConscript(REPO_ROOT_DIR.File("env_arm"))
 Import("env_arm")
+Import("env_x86")
 
 """ Add/modify additional parameters """
 env_arm = env_arm.Clone(
     tools=["clangformat"]
 )
-
-if osops.is_windows():
-  print("-- Using ARM compiler on WINDOWS")
-  osops.prepend_env_var(env_arm, REPO_ROOT_DIR.Dir("compiler/windows/gcc-arm-none-eabi-8-2019-q3-update/bin"))
-elif osops.is_linux():
-  print("-- Using ARM compiler on LINUX")
-  osops.prepend_env_var(env_arm, REPO_ROOT_DIR.Dir("compiler/linux/gcc-arm-none-eabi-8-2019-q3-update/bin"))
-elif osops.is_macos():
-  print("-- Using ARM compiler on MAC")
-  osops.prepend_env_var(env_arm, REPO_ROOT_DIR.Dir("compiler/mac/gcc-arm-none-eabi-8-2019-q3-update/bin"))
-else:
-  print("[{}] is an unsupported OS!".format(sys.platform))
-  exit(-1)
 
 env_arm.VariantDir(variant_dir=VARIANT_DIR, src_dir=Dir("."), duplicate=0)
 
@@ -105,7 +93,8 @@ env_arm["CPPPATH"].extend(INCLUDE_DIRS)
 env_arm["CPPPATH"].extend(all_sources.include_dirnodes)
 
 """ Filter build files """
-all_sources.source_filenodes = fsops.filter_files(all_sources.source_filenodes, EXCLUDED_SRC_FILES)
+all_sources.source_filenodes = fsops.filter_files(all_sources.source_filenodes, exclude_filenodes=EXCLUDED_SRC_FILES)
+all_sources.source_filenodes = fsops.filter_files(all_sources.source_filenodes, exclude_filename_pattern="test_*")
 all_sources.source_filenodes = fsops.remove_duplicate_filenodes(all_sources.source_filenodes)
 
 
@@ -152,3 +141,11 @@ format_filenodes = fsops.filter_files(
 if not no_format:
     for filenode in format_filenodes:
         env_arm.ClangFormat(filenode=filenode, verbose=verbose)
+
+
+"""
+Unit test
+"""
+if not no_unittest:
+    env_x86["CPPPATH"].extend(env_arm["CPPPATH"])
+    env_x86.Test(File(r"C:\git\sjtwo-c\lpc40xx_freertos\l5_application\test\test_math.c"), TEST_DIR)

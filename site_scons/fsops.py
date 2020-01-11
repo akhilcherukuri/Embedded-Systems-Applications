@@ -87,7 +87,9 @@ def filter_files(filenodes, exclude_filenodes=None, exclude_dirnodes=None, exclu
     filtered_filenodes.extend(list(filter(lambda filenode: filenode not in exclude_filenodes, filenodes)))
 
     if exclude_filename_pattern is not None:
-        filtered_filenodes.extend(list(filter(lambda filenode: not fnmatch(filenode.name, exclude_filename_pattern), filtered_filenodes)))
+        new_filtered_filenodes = []
+        new_filtered_filenodes.extend(list(filter(lambda filenode: not fnmatch.fnmatch(filenode.name, exclude_filename_pattern), filtered_filenodes)))
+        filtered_filenodes = new_filtered_filenodes
 
     new_filtered_filenodes = []
     if exclude_dirnodes is not None:
@@ -136,6 +138,19 @@ def prefix_filenode_name(filenode, prefix):
     """
     filenode = File(filenode)
     new_filename = "{}{}".format(prefix, filenode.name)
+    new_filenode = File(os.path.join(os.path.dirname(filenode.abspath), new_filename))
+    return new_filenode
+
+def suffix_filenode_name(filenode, suffix):
+    """
+    Add a suffix to a file node's name
+    :param filenode: A file node (File)
+    :param suffix: Suffix to add (str)
+    :return: A file node with a modified file name (File)
+    """
+    filenode = File(filenode)
+    basename, ext = os.path.splitext(filenode.name)
+    new_filename = "{}{}{}".format(basename, suffix, ext)
     new_filenode = File(os.path.join(os.path.dirname(filenode.abspath), new_filename))
     return new_filenode
 

@@ -1,0 +1,17 @@
+import os
+
+env_x86 = Environment(
+    ENV=os.environ,
+    tools=["mingw", "unittest"],
+    CC="gcc",
+    CFLAGS=[
+        "-std=c99",
+    ],
+    LINKFLAGS=[],
+    CPPPATH=[],
+    CPPDEFINES=[],
+    LIBPATH=[],
+    LIBS=[],
+)
+
+Export("env_x86")

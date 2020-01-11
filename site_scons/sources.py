@@ -34,5 +34,5 @@ class Sources(object):
     def __add__(self, obj):
         assert isinstance(obj, Sources)
         for attr_name, attr_value in obj:
-            getattr(self, attr_name).extend(attr_value)
+            setattr(self, attr_name, list(set(getattr(self, attr_name) + attr_value)))
         return self

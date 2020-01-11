@@ -30,7 +30,7 @@ Environment functions
 """
 
 
-def clang_format_method(self, filenode, verbose=False):
+def clang_format_method(env, filenode, verbose=False):
     """
     Auto format an input file.
     Note, this operation will change the contents in the source file.
