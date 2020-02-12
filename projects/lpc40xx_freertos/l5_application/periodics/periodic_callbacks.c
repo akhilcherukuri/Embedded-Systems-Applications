@@ -18,7 +18,7 @@ void periodic_callbacks__initialize(void) {
 void periodic_callbacks__1Hz(uint32_t callback_count) {
   gpio__toggle(board_io__get_led0());
   // Add your code here
-  // switch_led_logic__run_once();
+  switch_led_logic__run_once();
   if (callback_count >= 5) {
     vTaskDelay(1000);
   }
