@@ -2,9 +2,7 @@
 
 static bool message_analyse(message_s *message) {
   bool symbol_found = false;
-  if (message->data[0] == '$') {
-    symbol_found = true;
-  } else if (message->data[0] == '#') {
+  if (message->data[0] == '$' || message->data[0] == '#') {
     symbol_found = true;
   } else {
     symbol_found = false;

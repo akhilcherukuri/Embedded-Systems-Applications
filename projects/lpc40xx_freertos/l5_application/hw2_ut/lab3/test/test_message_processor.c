@@ -44,3 +44,43 @@ void test_process_messages_with_callbacks(void) {
   message__read_StubWithCallback(test_message_without_sign);
   TEST_ASSERT_FALSE(message_processor());
 }
+
+void test_process_3_messages_true(void) {
+  message_s test_message1 = {"$dollar"};
+  message_s test_message2 = {"#hash"};
+  message_s test_message3 = {"$#$#$#"};
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message1);
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message2);
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message3);
+
+  TEST_ASSERT_EQUAL(1, message_processor());
+}
+
+void test_process_3_messages_false(void) {
+  message_s test_message1 = {"dollar$"};
+  message_s test_message2 = {"hash#"};
+  message_s test_message3 = {"sjsu"};
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message1);
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message2);
+
+  message__read_ExpectAndReturn(NULL, true);
+  message__read_IgnoreArg_message_to_read();
+  message__read_ReturnThruPtr_message_to_read(&test_message3);
+
+  TEST_ASSERT_EQUAL(0, message_processor());
+}
